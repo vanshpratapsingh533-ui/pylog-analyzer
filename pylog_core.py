@@ -1,14 +1,20 @@
+<<<<<<< HEAD
 import codecs
+=======
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
 import datetime
 from collections import Counter
 from pathlib import Path
 
 
 MAX_TOP = 100
+<<<<<<< HEAD
 # Only this many example errors are kept for each response code (and for
 # unreadable lines). The totals are still counted for every line.
 ERRORS_KEPT_PER_CODE = 1000
 CHUNK_SIZE = 1024 * 1024
+=======
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
 
 MONTH_MAP = {
     "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04",
@@ -40,6 +46,7 @@ def sort_key_for_time(bucket: str) -> str:
         return bucket
 
 
+<<<<<<< HEAD
 STATUS_CODES = {
     100: ("Continue", "The server told the visitor to go ahead and send the rest of its request."),
     101: ("Switching Protocols", "The visitor asked to change how they talk to the server, and the server agreed."),
@@ -118,16 +125,39 @@ GROUP_NAMES = {
     3: ("Redirect", "The visitor was sent to another address."),
     4: ("Client Error", "The request had a problem. Check the link, the login, and the permissions."),
     5: ("Server Error", "Something went wrong on the server. Check the logs and make sure everything it depends on is running."),
+=======
+KNOWN_ERROR_CODES = {
+    400: ("Bad Request", "The request was not put together correctly. Check what the visitor or app is sending."),
+    401: ("Unauthorized", "The visitor was not logged in or used the wrong details. Check the login steps."),
+    403: ("Forbidden", "The visitor is not allowed in. Check who has access and who owns the files."),
+    404: ("Not Found", "The page was not found. Fix the link or put the missing page back."),
+    405: ("Method Not Allowed", "This page does not accept that kind of request. Check which request types it allows."),
+    408: ("Request Timeout", "The visitor took too long. Check for slow connections and how busy the server is."),
+    429: ("Too Many Requests", "Someone sent too many requests. Consider limiting how often a visitor can ask."),
+    500: ("Internal Server Error", "Something broke on the server. Look in the app and server logs for the cause."),
+    502: ("Bad Gateway", "One server got a bad reply from another. Check the service behind it and the connection."),
+    503: ("Service Unavailable", "The server could not take the request. Check if it is overloaded, being worked on, or waiting on something else."),
+    504: ("Gateway Timeout", "A server behind this one took too long. Check how slow it is and how long you wait for it."),
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
 }
 
 
 def explain_status(code: int) -> tuple[str, str]:
+<<<<<<< HEAD
     if code in STATUS_CODES:
         return STATUS_CODES[code]
     if code // 100 in GROUP_NAMES:
         return GROUP_NAMES[code // 100]
     if code != 0:
         return "Unknown Code", "This is not a standard response code. Check what your server or app is sending."
+=======
+    if code in KNOWN_ERROR_CODES:
+        return KNOWN_ERROR_CODES[code]
+    if 400 <= code <= 499:
+        return "Client Error", "The request had a problem. Check the link, the login, and the permissions."
+    if 500 <= code <= 599:
+        return "Server Error", "Something went wrong on the server. Check the logs and make sure everything it depends on is running."
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
     return "Unreadable Line", "This line does not look like a normal log line. Check how your server writes its logs."
 
 
@@ -211,8 +241,11 @@ class LogAnalyzer:
         self.path_counter = Counter()
         self.method_counter = Counter()
         self.error_log = []
+<<<<<<< HEAD
         self.error_kept = Counter()
         self.line_number = 0
+=======
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
         self.second_counter = Counter()
         self.minute_counter = Counter()
         self.hour_counter = Counter()
@@ -223,9 +256,12 @@ class LogAnalyzer:
 
     def record_malformed(self, line_number: int, raw_line: str) -> None:
         self.malformed_lines += 1
+<<<<<<< HEAD
         if self.error_kept["Malformed"] >= ERRORS_KEPT_PER_CODE:
             return
         self.error_kept["Malformed"] += 1
+=======
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
         label, suggestion = explain_status(0)
         self.error_log.append({
             "lineNumber": line_number,
@@ -249,9 +285,12 @@ class LogAnalyzer:
 
         if 400 <= entry["status"] <= 599:
             self.error_hour_counter[entry["hour"]] += 1
+<<<<<<< HEAD
             if self.error_kept[entry["status"]] >= ERRORS_KEPT_PER_CODE:
                 return
             self.error_kept[entry["status"]] += 1
+=======
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
             label, suggestion = explain_status(entry["status"])
             self.error_log.append({
                 "lineNumber": line_number,
@@ -265,15 +304,21 @@ class LogAnalyzer:
                 "raw": entry["raw"],
             })
 
+<<<<<<< HEAD
     def feed_lines(self, lines) -> None:
         for raw_line in lines:
             self.line_number += 1
+=======
+    def feed(self, log_text: str) -> None:
+        for line_number, raw_line in enumerate(log_text.splitlines(), start=1):
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
             if not raw_line.strip():
                 continue
             self.total_lines += 1
             try:
                 entry = parse_line(raw_line)
             except ValueError:
+<<<<<<< HEAD
                 self.record_malformed(self.line_number, raw_line)
                 continue
             self.record_valid_line(self.line_number, entry)
@@ -298,6 +343,11 @@ class LogAnalyzer:
         leftover += decoder.decode(b"", final=True)
         if leftover:
             self.feed_lines([leftover])
+=======
+                self.record_malformed(line_number, raw_line)
+                continue
+            self.record_valid_line(line_number, entry)
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
 
     def top(self, counter: Counter) -> list[dict]:
         return [{"label": str(key), "count": count}
@@ -346,6 +396,7 @@ class LogAnalyzer:
             "topIps": self.top(self.ip_counter),
             "topPaths": self.top(self.path_counter),
             "topMethods": self.top(self.method_counter),
+<<<<<<< HEAD
             "statusCodes": [{"label": str(code), "name": explain_status(code)[0],
                              "info": explain_status(code)[1], "count": count}
                             for code, count in self.status_counter.most_common()],
@@ -353,6 +404,11 @@ class LogAnalyzer:
             "errorsTotal": total_bad,
             "errorsKeptPerCode": ERRORS_KEPT_PER_CODE,
             "errorsTrimmed": len(self.error_log) < total_bad,
+=======
+            "statusCodes": [{"label": str(code), "count": count}
+                            for code, count in self.status_counter.most_common()],
+            "errors": self.error_log,
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
             "suspiciousIps": self.find_suspicious_ips(),
             "requestsOverTime": {
                 "second": sorted(
@@ -388,9 +444,12 @@ def analyse_log(log_text: str, file_name: str = "server.log", top_limit: int = M
     analyzer = LogAnalyzer(top_limit=top_limit)
     analyzer.feed(log_text)
     return analyzer.report(file_name)
+<<<<<<< HEAD
 
 
 def analyse_stream(stream, length: int, file_name: str = "server.log", top_limit: int = MAX_TOP) -> dict:
     analyzer = LogAnalyzer(top_limit=top_limit)
     analyzer.feed_stream(stream, length)
     return analyzer.report(file_name)
+=======
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b

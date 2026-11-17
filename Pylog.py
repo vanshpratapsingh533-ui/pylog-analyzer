@@ -5,9 +5,15 @@ import threading
 import webbrowser
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+<<<<<<< HEAD
 from urllib.parse import unquote, urlparse
 
 from pylog_core import analyse_stream
+=======
+from urllib.parse import urlparse
+
+from pylog_core import analyse_log
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
 
 STATIC_DIR = Path(__file__).parent / "public"
 
@@ -34,11 +40,20 @@ class RequestHandler(SimpleHTTPRequestHandler):
             return
         try:
             length = int(self.headers.get("Content-Length", "0"))
+<<<<<<< HEAD
             if length <= 0:
                 raise ValueError("A text log file is required.")
             file_name = unquote(self.headers.get("X-File-Name") or "") or "server.log"
             self.send_json(200, analyse_stream(self.rfile, length, file_name))
         except ValueError as error:
+=======
+            payload = json.loads(self.rfile.read(length).decode("utf-8"))
+            text = payload.get("content")
+            if not isinstance(text, str):
+                raise ValueError("A text log file is required.")
+            self.send_json(200, analyse_log(text, str(payload.get("fileName") or "server.log")))
+        except (json.JSONDecodeError, ValueError) as error:
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
             self.send_json(400, {"error": str(error)})
 
 

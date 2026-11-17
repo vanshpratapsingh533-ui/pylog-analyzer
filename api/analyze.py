@@ -2,11 +2,18 @@ import json
 import sys
 from http.server import BaseHTTPRequestHandler
 from pathlib import Path
+<<<<<<< HEAD
 from urllib.parse import unquote
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from pylog_core import analyse_stream  # noqa: E402
+=======
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from pylog_core import analyse_log  # noqa: E402
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
 
 
 class handler(BaseHTTPRequestHandler):
@@ -22,11 +29,21 @@ class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             length = int(self.headers.get("Content-Length", "0"))
+<<<<<<< HEAD
             if length <= 0:
                 raise ValueError("A text log file is required.")
             file_name = unquote(self.headers.get("X-File-Name") or "") or "server.log"
             self.send_json(200, analyse_stream(self.rfile, length, file_name))
         except ValueError as error:
+=======
+            payload = json.loads(self.rfile.read(length).decode("utf-8"))
+            log_text = payload.get("content")
+            if not isinstance(log_text, str):
+                raise ValueError("A text log file is required.")
+            file_name = str(payload.get("fileName") or "server.log")
+            self.send_json(200, analyse_log(log_text, file_name))
+        except (json.JSONDecodeError, UnicodeDecodeError, ValueError) as error:
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
             self.send_json(400, {"error": str(error)})
         except Exception:
             self.send_json(500, {"error": "Something went wrong while reading the log."})

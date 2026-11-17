@@ -58,9 +58,13 @@ const StatusChart = memo(function StatusChart({
   }, safeItems.map(x => React.createElement("div", {
     className: "bar-row",
     key: x.label
+<<<<<<< HEAD
   }, React.createElement("span", {
     title: x.info || ""
   }, x.name ? x.label + " " + x.name : x.label), React.createElement("i", null, React.createElement("b", {
+=======
+  }, React.createElement("span", null, x.label), React.createElement("i", null, React.createElement("b", {
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
     style: {
       width: `${(x.count || 0) / max * 100}%`
     }
@@ -227,7 +231,11 @@ function ThemeToggle() {
 }
 function downloadReport(data, topLimit) {
   const s = data.summary;
+<<<<<<< HEAD
   const lines = [`PYLOG REPORT`, `File: ${data.fileName}`, '', `Lines read: ${s.totalLines}`, `Unreadable lines: ${s.malformedCount}`, `Failed requests: ${s.httpErrors}`, `Share with problems: ${s.errorRate}%`, '', `Busiest ${topLimit} visitors:`, ...data.topIps.slice(0, topLimit).map((x, i) => `${i + 1}. ${x.label} - ${x.count} requests`), '', 'Errors' + (data.errorsTrimmed ? ` (first ${data.errorsKeptPerCode} for each response code, out of ${data.errorsTotal})` : '') + ':', ...data.errors.map(x => `Line ${x.lineNumber} | ${x.status}: ${x.description} | What to try: ${x.suggestion}\n${x.raw}`)];
+=======
+  const lines = [`PYLOG REPORT`, `File: ${data.fileName}`, '', `Lines read: ${s.totalLines}`, `Unreadable lines: ${s.malformedCount}`, `Failed requests: ${s.httpErrors}`, `Share with problems: ${s.errorRate}%`, '', `Busiest ${topLimit} visitors:`, ...data.topIps.slice(0, topLimit).map((x, i) => `${i + 1}. ${x.label} - ${x.count} requests`), '', 'Errors:', ...data.errors.map(x => `Line ${x.lineNumber} | ${x.status}: ${x.description} | What to try: ${x.suggestion}\n${x.raw}`)];
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([lines.join('\n')], {
     type: 'text/plain'
@@ -260,6 +268,7 @@ function App() {
     setBusy(true);
     setMessage('Reading your log file…');
     try {
+<<<<<<< HEAD
       const r = await fetch('/api/analyze', {
         method: 'POST',
         headers: {
@@ -267,6 +276,18 @@ function App() {
           'X-File-Name': encodeURIComponent(file.name)
         },
         body: file
+=======
+      const content = await file.text();
+      const r = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          content,
+          fileName: file.name
+        })
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
       });
       if (r.status === 413) throw new Error('File too large for the hosted version (limit ~4.5 MB). Try a smaller log or run locally.');
       let json;
@@ -411,7 +432,11 @@ function App() {
     className: "panel errors"
   }, React.createElement("div", {
     className: "section-head"
+<<<<<<< HEAD
   }, React.createElement("div", null, React.createElement("h2", null, "Errors and what to try"), React.createElement("p", null, "Showing ", shown.length.toLocaleString(), " of", ' ', errors.length.toLocaleString(), " matching errors"), data.errorsTrimmed && React.createElement("small", null, "This file had " + data.errorsTotal.toLocaleString() + " errors in total. To keep the page fast, only the first " + data.errorsKeptPerCode.toLocaleString() + " for each response code are listed. The counts above include all of them.")), React.createElement("div", {
+=======
+  }, React.createElement("div", null, React.createElement("h2", null, "Errors and what to try"), React.createElement("p", null, "Showing ", shown.length.toLocaleString(), " of", ' ', errors.length.toLocaleString(), " matching errors")), React.createElement("div", {
+>>>>>>> 6b2d266f97b8c34dd8b57158a17acf32bffbb62b
     className: "controls"
   }, React.createElement("input", {
     type: "text",
